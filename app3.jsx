@@ -49,16 +49,21 @@ function App() {
       filiere: "Génie Logiciel et Systèmes d'Information",
       anneeEtude: "2ème année",
       groupe: "GLSI B2",
-      ville: "mahdia",
+      ville: "Mahdia",
     };
 
-    setEtudiants([...etudiants, nouvelEtudiant]);
+    setEtudiants((anciensEtudiants) => [
+      ...anciensEtudiants,
+      nouvelEtudiant,
+    ]);
   }
 
   // Supprimer un étudiant
   function supprimerEtudiant(email) {
-    setEtudiants(
-      etudiants.filter((etudiant) => etudiant.email !== email)
+    setEtudiants((anciensEtudiants) =>
+      anciensEtudiants.filter(
+        (etudiant) => etudiant.email !== email
+      )
     );
   }
 
@@ -66,11 +71,11 @@ function App() {
   function modifierEtudiant(email) {
     const nouveauPrenom = prompt("Nouveau prénom :");
 
-    if (nouveauPrenom) {
-      setEtudiants(
-        etudiants.map((etudiant) =>
+    if (nouveauPrenom && nouveauPrenom.trim() !== "") {
+      setEtudiants((anciensEtudiants) =>
+        anciensEtudiants.map((etudiant) =>
           etudiant.email === email
-            ? { ...etudiant, prenom: nouveauPrenom }
+            ? { ...etudiant, prenom: nouveauPrenom.trim() }
             : etudiant
         )
       );
@@ -79,7 +84,9 @@ function App() {
 
   // Filtrer par filière
   const etudiantsFiltres = etudiants.filter((etudiant) =>
-    etudiant.filiere.toLowerCase().includes(filtre.toLowerCase())
+    etudiant.filiere
+      .toLowerCase()
+      .includes(filtre.toLowerCase())
   );
 
   return (
@@ -104,20 +111,27 @@ function App() {
       <br />
       <br />
 
-      {etudiantsFiltres.map((etudiant) => (
-        <StudentCard
-          prenom={etudiant.prenom}
-          nom={etudiant.nom}
-          email={etudiant.email}
-          telephone={etudiant.telephone}
-          filiere={etudiant.filiere}
-          anneeEtude={etudiant.anneeEtude}
-          groupe={etudiant.groupe}
-          ville={etudiant.ville}
-          onDelete={supprimerEtudiant}
-          onEdit={modifierEtudiant}
-        />
-      ))}
+      <div className="students-list">
+        {etudiantsFiltres.map((etudiant) => (
+          <StudentCard
+            key={etudiant.email}
+            prenom={etudiant.prenom}
+            nom={etudiant.nom}
+            email={etudiant.email}
+            telephone={etudiant.telephone}
+            filiere={etudiant.filiere}
+            anneeEtude={etudiant.anneeEtude}
+            groupe={etudiant.groupe}
+            ville={etudiant.ville}
+            onDelete={() => supprimerEtudiant(etudiant.email)}
+            onEdit={() => modifierEtudiant(etudiant.email)}
+          />
+        ))}
+      </div>
+
+      {etudiantsFiltres.length === 0 && (
+        <p>Aucun étudiant trouvé.</p>
+      )}
 
     </div>
   );
